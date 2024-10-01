@@ -397,3 +397,32 @@ function saveAsLaTeX() {
 	var texData = exporter.toLaTeX();
 	output(texData);
 }
+
+function saveAsDot() {
+	console.log(nodes);
+	console.log(links);
+	nodes.forEach((node) => node.id = Math.random()
+		.toString(36)
+		.replace(/[^a-z]+/g, "")
+		.slice(0, 12)
+		.toUpperCase());
+
+	var dotString = "digraph {";
+	dotString += nodes.map((node) => {
+		return node.id + "[label=\"" + node.text + "\"]"
+	}).join(";");
+	dotString += links.map((link) => {
+		let nodeA, nodeB;
+		if (link instanceof SelfLink) {
+			nodeA = link.node.id;
+			nodeB = link.node.id;
+		} else {
+			nodeA = link.nodeA.id;
+			nodeB = link.nodeB.id;
+		}
+		return nodeA + "->" + nodeB + "[label=\"" + link.text + "\"]"
+	}).join(";");
+
+	dotString += "}";
+	console.log(dotString);
+}
