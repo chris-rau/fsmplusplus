@@ -1,4 +1,10 @@
 var greekLetterNames = [ 'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega' ];
+var config = {
+	directed: true,
+	allow_loops: true,
+	multigraph: true
+}
+
 
 function convertLatexShortcuts(text) {
 	// html greek characters
@@ -407,21 +413,32 @@ function saveAsDot() {
 		.slice(0, 12)
 		.toUpperCase());
 
+	var arrow = "->";
 	var dotString = "digraph {";
+
+	if (!config.directed) {
+		arrow = "--"
+		dotString = "graph {";
+	}
+	
 	dotString += nodes.map((node) => {
 		return node.id + "[label=\"" + node.text + "\"]"
 	}).join(";");
 	dotString += links.map((link) => {
 		let nodeA, nodeB;
 		if (link instanceof SelfLink) {
+			if (!config.allow_loops) {
+				return "";
+			}
 			nodeA = link.node.id;
 			nodeB = link.node.id;
 		} else {
 			nodeA = link.nodeA.id;
 			nodeB = link.nodeB.id;
 		}
-		return nodeA + "->" + nodeB + "[label=\"" + link.text + "\"]"
-	}).join(";");
+		
+		return nodeA + arrow + nodeB + "[label=\"" + link.text + "\"]"
+	}).filter(Boolean).join(";");
 
 	dotString += "}";
 	console.log(dotString);
